@@ -16,7 +16,7 @@
 -- Skills: COUNT, GROUP BY, window functions (SUM OVER), ROUND
 -- ============================================================
 
--- Q1: Show count by category (what types of shows dominate Broadway?)
+-- Show count by category (what types of shows dominate Broadway?)
 SELECT 
     show_category,
     COUNT(*) AS num_shows,
@@ -26,7 +26,7 @@ GROUP BY show_category
 ORDER BY num_shows DESC;
 
 
--- Q2: Average total gross by category (which show types earn the most?)
+-- Average total gross by category (which show types earn the most?)
 SELECT 
     s.show_category,
     COUNT(*) AS num_shows,
@@ -42,7 +42,7 @@ GROUP BY s.show_category
 ORDER BY avg_gross_millions DESC;
 
 
--- Q3: Average capacity % and ticket price by category (which types fill seats best?)
+-- Average capacity % and ticket price by category (which types fill seats best?)
 SELECT 
     s.show_category,
     COUNT(*) AS num_shows,
@@ -60,7 +60,7 @@ ORDER BY avg_capacity_pct DESC;
 -- Skills: JOINs, aggregations, date functions, EXTRACT
 -- ============================================================
 
--- Q4: Industry trends by year (ticket prices, capacity, revenue growth)
+-- Industry trends by year (ticket prices, capacity, revenue growth)
 -- Note: Cut off at March 2020 to avoid COVID shutdown skewing numbers
 SELECT 
     EXTRACT(YEAR FROM f.week_ending)::INT AS year,
@@ -74,7 +74,7 @@ GROUP BY EXTRACT(YEAR FROM f.week_ending)
 ORDER BY year;
 
 
--- Q5: Year-over-year industry revenue growth using LAG
+-- Year-over-year industry revenue growth using LAG
 -- Skills: CTEs, LAG window function, NULLIF
 WITH yearly_totals AS (
     SELECT 
@@ -101,7 +101,7 @@ ORDER BY year;
 -- Skills: CTEs, CASE statements, date arithmetic, NULLIF, before/after analysis
 -- ============================================================
 
--- Q6: Tony Awards ROI - Before/After revenue comparison *** SHOWPIECE QUERY ***
+-- Tony Awards ROI - Before/After revenue comparison
 -- Compares avg weekly gross 26 weeks before vs. 26 weeks after Tony ceremony
 -- Skills: CTEs, CASE, MAKE_DATE, INTERVAL, NULLIF, HAVING
 WITH tony_dates AS (
@@ -141,7 +141,7 @@ HAVING COUNT(CASE WHEN f.week_ending < td.tony_ceremony_date THEN 1 END) >= 10
 ORDER BY pct_change DESC;
 
 
--- Q7: Tony winners vs. non-winners aggregate comparison
+-- Tony winners vs. non-winners aggregate comparison
 -- Skills: CASE, LEFT JOIN, subquery, aggregation
 SELECT 
     CASE WHEN t.show IS NOT NULL THEN 'Tony Winner' ELSE 'No Tony Win' END AS tony_status,
@@ -160,7 +160,7 @@ LEFT JOIN tony_awards t ON s.show = t.show
 GROUP BY CASE WHEN t.show IS NOT NULL THEN 'Tony Winner' ELSE 'No Tony Win' END;
 
 
--- Q8: Tony win rate by show category
+-- Tony win rate by show category
 -- Skills: LEFT JOIN, COUNT DISTINCT, percentage calculation
 SELECT 
     s.show_category,
@@ -182,7 +182,7 @@ ORDER BY win_rate_pct DESC;
 -- Skills: ROW_NUMBER, LAG, AVG OVER with window frames, PARTITION BY
 -- ============================================================
 
--- Q9: Top 3 grossing shows per year using ROW_NUMBER
+-- Top 3 grossing shows per year using ROW_NUMBER
 -- Skills: CTEs, ROW_NUMBER, PARTITION BY
 WITH yearly_gross AS (
     SELECT 
@@ -206,7 +206,7 @@ WHERE rank <= 3
 ORDER BY year, rank;
 
 
--- Q10: Hamilton's weekly gross with 8-week moving average
+-- Hamilton's weekly gross with 8-week moving average
 -- Skills: AVG OVER with window frame (ROWS BETWEEN)
 SELECT 
     week_ending,
@@ -220,7 +220,7 @@ WHERE show = 'Hamilton'
 ORDER BY week_ending;
 
 
--- Q11: Cumulative gross for top 5 shows (running totals)
+-- Cumulative gross for top 5 shows (running totals)
 -- Skills: SUM OVER (PARTITION BY ... ORDER BY)
 SELECT 
     show,
@@ -238,7 +238,7 @@ ORDER BY show, week_ending;
 -- Skills: CASE statements, date extraction, complex JOINs, subqueries
 -- ============================================================
 
--- Q12: Opening season analysis (does launch timing affect success?)
+-- Opening season analysis (does launch timing affect success?)
 -- Skills: CASE, EXTRACT, date casting, subquery JOIN
 -- Note: opening_date is VARCHAR, must cast to date and exclude 'Still Running'
 SELECT 
@@ -262,7 +262,7 @@ GROUP BY opening_season
 ORDER BY avg_gross_millions DESC;
 
 
--- Q13: What do long-running shows (10+ years) have in common?
+-- What do long-running shows (10+ years) have in common?
 -- Skills: HAVING with COUNT, aggregation
 -- (520 weeks = 10 years)
 SELECT 
@@ -281,7 +281,7 @@ HAVING COUNT(*) >= 520
 ORDER BY weeks_of_data DESC;
 
 
--- Q14: Musicals vs. Plays performance comparison
+-- Musicals vs. Plays performance comparison
 -- Skills: subquery JOIN, multiple aggregations
 SELECT 
     s.show_type,
@@ -306,7 +306,7 @@ GROUP BY s.show_type;
 -- Skills: Complex CASE, multiple JOINs, tiered scoring, COALESCE, CTE
 -- ============================================================
 
--- Q15: Multi-factor success score (financial + critical + longevity + capacity)
+-- Multi-factor success score (financial + critical + longevity + capacity)
 -- Skills: CTE, COALESCE, tiered CASE scoring, LEFT JOIN, multi-column ORDER BY
 WITH show_metrics AS (
     SELECT 
@@ -353,7 +353,7 @@ ORDER BY success_score DESC, total_gross_millions DESC
 LIMIT 20;
 
 
--- Q16: Tony Award winners ranked by total gross revenue
+-- Tony Award winners ranked by total gross revenue
 -- Skills: 3-table JOIN, GROUP BY, aggregate functions, type casting
 SELECT 
     s.show,
@@ -370,7 +370,7 @@ GROUP BY s.show, s.show_category, t.year, t.category, t.num_nominations, t.num_w
 ORDER BY total_gross_millions DESC;
 
 
--- Q17: Top 15 shows overall (final rankings summary)
+-- Top 15 shows overall (final rankings summary)
 -- Skills: 3-table LEFT JOIN, multiple aggregations, COALESCE
 SELECT 
     s.show,
@@ -394,7 +394,7 @@ LIMIT 15;
 -- CHART DATA EXPORTS (for Excel visualization)
 -- ============================================================
 
--- Q18: Capacity vs. Weeks Running scatterplot data (all 145 shows)
+-- Capacity vs. Weeks Running scatterplot data (all 145 shows)
 -- Business question: Is sustained capacity the best predictor of longevity?
 SELECT 
     s.show,
